@@ -47,6 +47,59 @@ class Tasks extends CSV_Model
         );
         return $config;
     }
+
+    /*
+     * Override
+     */
+    public function load()
+    {
+        $this->rest->initialize(array('server' => REST_SERVER));
+        $this->rest->option(CURLOPT_PORT, REST_PORT);
+        $this->_data =  $this->rest->get('job/');
+        $one = array_values((array) $this->_data);
+        $this->_fields = array_keys((array)$one[0]);
+        $this->reindex();
+    }
+
+    public function store()
+    {
+
+    }
+
+    public function get($key, $key2 = null)
+    {
+        $this->rest->initialize(array('server' => REST_SERVER));
+        $this->rest->option(CURLOPT_PORT, REST_PORT);
+        return $this->rest->get('job/' . $key);
+    }
+
+    public function update($record)
+    {
+        $this->rest->initialize(array('server' => REST_SERVER));
+        $this->rest->option(CURLOPT_PORT, REST_PORT);
+        $key = $record->{$this->_keyfield};
+        $retrieved = $this->rest->put('job/' . $key, $record);
+        $this->load(); // because the "database" might have changed
+    }
+
+    public function delete($key, $key2 = null)
+    {
+        $this->rest->initialize(array('server' => REST_SERVER));
+        $this->rest->option(CURLOPT_PORT, REST_PORT);
+        $this->rest->delete('job/' . $key);
+        $this->load(); // because the "database" might have changed
+    }
+
+    function add($record)
+    {
+        $this->rest->initialize(array('server' => REST_SERVER));
+        $this->rest->option(CURLOPT_PORT, REST_PORT);
+        $key = $record->{$this->_keyfield};
+        $retrieved = $this->rest->post('job/' . $key, $record);
+        $this->load(); // because the "database" might have changed
+    }
+
+
 }
 
 // return -1, 0, or 1 of $a's category name is earlier, equal to, or later than $b's
